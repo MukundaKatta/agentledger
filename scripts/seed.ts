@@ -7,7 +7,10 @@ async function main() {
   const table = process.env.DDB_TABLE ?? "AgentLedger";
   console.log(`Seeding ${N} synthetic runs into "${table}" ...`);
   for (let i = 0; i < N; i++) {
-    const run = await recordIngest(syntheticRun());
+    const p = syntheticRun();
+    // spread runs over the past few hours so the dashboard + chart look live
+    p.startedAt = new Date(Date.now() - i * 7 * 60_000).toISOString();
+    const run = await recordIngest(p);
     console.log(`  + ${run.agent.padEnd(14)} ${run.runId}  $${run.totalUsd.toFixed(4)}  ${run.status}`);
   }
   console.log("Done. Open the dashboard to see them.");

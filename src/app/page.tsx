@@ -1,5 +1,6 @@
 import { listRuns } from "@/lib/ingest";
 import { StatCards } from "@/components/StatCards";
+import { SpendChart } from "@/components/SpendChart";
 import { RunTable } from "@/components/RunTable";
 import { SendTestRun } from "@/components/SendTestRun";
 import type { RunSummary } from "@/lib/types";
@@ -46,6 +47,7 @@ export default async function Home() {
       ) : (
         <>
           <StatCards runs={runs} />
+          <SpendChart runs={runs} />
           <RunTable runs={runs} />
         </>
       )}

@@ -15,6 +15,7 @@ import {
   runPk,
   evtSk,
 } from "./dynamo";
+import { foldEvents } from "./aggregate";
 import type { IngestPayload, RunSummary, StoredEvent } from "./types";
 
 /**
@@ -33,29 +34,22 @@ export async function recordIngest(p: IngestPayload): Promise<RunSummary> {
   const startedAt = prev?.startedAt ?? p.startedAt ?? now;
   const seqBase = prev?.eventCount ?? 0;
 
-  const agg = {
-    totalUsd: prev?.totalUsd ?? 0,
-    totalTokens: prev?.totalTokens ?? 0,
-    toolCalls: prev?.toolCalls ?? 0,
-    modelCalls: prev?.modelCalls ?? 0,
-    errors: prev?.errors ?? 0,
-    latencyMs: prev?.latencyMs ?? 0,
-    eventCount: seqBase,
-  };
+  const agg = foldEvents(
+    {
+      totalUsd: prev?.totalUsd ?? 0,
+      totalTokens: prev?.totalTokens ?? 0,
+      toolCalls: prev?.toolCalls ?? 0,
+      modelCalls: prev?.modelCalls ?? 0,
+      errors: prev?.errors ?? 0,
+      latencyMs: prev?.latencyMs ?? 0,
+      eventCount: seqBase,
+    },
+    p.events,
+  );
 
   const eventItems = p.events.map((e, i) => {
     const seq = seqBase + i + 1;
     const ts = e.ts ?? now;
-    const usd = e.usd ?? 0;
-    const tokens = e.tokens ?? 0;
-    const latencyMs = e.latencyMs ?? 0;
-    agg.totalUsd += usd;
-    agg.totalTokens += tokens;
-    agg.latencyMs += latencyMs;
-    if (e.type === "tool_call") agg.toolCalls += 1;
-    if (e.type === "model_call") agg.modelCalls += 1;
-    if (e.type === "error") agg.errors += 1;
-    agg.eventCount = seq;
     return {
       pk: runPk(p.runId),
       sk: evtSk(seq, ts),
@@ -63,9 +57,9 @@ export async function recordIngest(p: IngestPayload): Promise<RunSummary> {
       ts,
       type: e.type,
       name: e.name,
-      usd,
-      tokens,
-      latencyMs,
+      usd: e.usd ?? 0,
+      tokens: e.tokens ?? 0,
+      latencyMs: e.latencyMs ?? 0,
       detail: e.detail,
     };
   });

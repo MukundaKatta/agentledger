@@ -1,0 +1,29 @@
+{
+  "name": "agentledger",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zero-ops observability for AI agents — every run, tool call, token and dollar stored in AWS DynamoDB, dashboard served on Vercel.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "create-table": "tsx scripts/create-table.ts",
+    "delete-table": "tsx scripts/delete-table.ts",
+    "seed": "tsx scripts/seed.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.731.0",
+    "@aws-sdk/lib-dynamodb": "^3.731.0",
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

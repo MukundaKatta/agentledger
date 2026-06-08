@@ -96,6 +96,30 @@ Calls are additive: POST again with the same `runId` to append events and roll u
 
 ---
 
+## Development & testing
+
+The cost/event aggregation and the single-table key helpers are pure functions, kept
+separate from the DynamoDB client so they can be unit-tested without any AWS credentials.
+
+```bash
+npm install
+npm test          # runs the unit suite (node:test via tsx, no AWS needed)
+npm run build     # production Next.js build
+npx tsc --noEmit  # type-check only
+```
+
+`npm test` discovers every `tests/**/*.test.ts` file. The suite covers:
+
+- `foldEvents` / `emptyAggregates` — cost, token and latency roll-ups and idempotent appends ([`tests/aggregate.test.ts`](tests/aggregate.test.ts)).
+- `runPk` / `evtSk` — single-table key construction and the zero-padding that keeps event sort keys in numeric order ([`tests/dynamo.test.ts`](tests/dynamo.test.ts)).
+- The `IngestPayload` / `RunEventInput` Zod schemas — defaults, bounds and rejection of bad input ([`tests/types.test.ts`](tests/types.test.ts)).
+- `syntheticRun` — every generated demo run validates against the real ingest schema ([`tests/demo.test.ts`](tests/demo.test.ts)).
+
+Every push and pull request runs type-check, tests and the build on Node 20 and 22 via
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
+
+---
+
 ## What's here
 
 ```
@@ -103,9 +127,11 @@ src/lib/        DynamoDB client, single-table helpers, ingest + query logic, dem
 src/app/        dashboard (/), run detail (/runs/[id]), API routes (/api/ingest|runs|demo)
 src/components/ StatCards, RunTable, EventTimeline, SendTestRun
 scripts/        create-table, delete-table, seed
+tests/          unit tests for the pure aggregation, key, schema and demo helpers
 docs/           architecture diagram + data model
 examples/       report.py (agent-side reporter)
 iam-policy.json least-privilege runtime policy
+.github/        CI workflow (type-check + test + build on Node 20/22)
 ```
 
 MIT.

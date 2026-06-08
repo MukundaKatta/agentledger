@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --import tsx --test tests/aggregate.test.ts",
+    "test": "node --import tsx --test 'tests/**/*.test.ts'",
     "create-table": "tsx scripts/create-table.ts",
     "delete-table": "tsx scripts/delete-table.ts",
     "seed": "tsx scripts/seed.ts"
